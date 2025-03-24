@@ -1,0 +1,27 @@
+utterance_IDs
+00bbecb2-9da3-421d-9f36-4fab9403d346_02_001
+00bbecb2-9da3-421d-9f36-4fab9403d346_02_002
+00bbecb2-9da3-421d-9f36-4fab9403d346_02_003
+00bbecb2-9da3-421d-9f36-4fab9403d346_02_004
+
+#assign a clip a label equal to
+
+    # Example usage
+    # get_file_names_in_directory()
+    # html_file = 'your_html_file.html'
+    # column_index = 2  # Example: select from the 3rd column (0-based index)
+    #
+    # with open(html_file, 'r') as file:
+    #     html_content = file.read()
+    #
+    # highlighted_texts = extract_highlighted_text(html_content, column_index)
+    #
+    # print("Highlighted texts in column {}:".format(column_index + 1))
+    # for text in highlighted_texts:
+    #     print(text)
+
+    # names = get_clip_names()
+    # for name in names:
+    #     pyperclip.copy(name)
+    #     pa.paste_new_label()
+    #     pa.sel_next_clip()

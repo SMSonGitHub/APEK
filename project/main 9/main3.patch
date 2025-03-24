@@ -1,0 +1,157 @@
+Index: massLabelAndExport.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/massLabelAndExport.py b/massLabelAndExport.py
+--- a/massLabelAndExport.py	
++++ b/massLabelAndExport.py	(date 1727075386425)
+@@ -3,6 +3,8 @@
+ import os
+ import re
+ from bs4 import BeautifulSoup
++from pyaudacity import export
++
+ 
+ def get_file_names_in_directory(directory_path: str) -> list[str]:
+     """
+@@ -97,18 +99,130 @@
+         for utterance_id in utterances:
+             print(f"Processing utteranceID: {utterance_id}")
+ 
+-            label_name = f"{utterance_id}_{first_name}_{last_name}"
+-            pyperclip.copy(label_name)
+-            pa.paste_new_label()
++            pa.last_track()
++            pa.curs_track_start()
++            pa.sel_next_clip()
++            pa.cut()
++            pa.toggle()
++            pa.prev_track()
++            pa.toggle()
++            # paste cut data into temp
++            pa.paste()
++            pa.toggle()
++
++
++            # Prepend and Append 1 second room tone to clip
++            pa.first_track()
++            pa.next_track()
++            pa.curs_track_start()
++            pa.sel_next_clip()
++            pa.copy()
++            pa.toggle()
++            pa.next_track()
++            pa.next_track()
++
++            #pre-pend
++            pa.curs_track_start()
++            pa.paste()
++            #append
++            pa.curs_track_end()
++            pa.paste()
++            pa.toggle()
++
++
++            # Append 6 seconds of silence to clip.
++            pa.first_track()
++            pa.curs_track_start()
+             pa.sel_next_clip()
++            pa.copy()
++            pa.toggle()
++            pa.last_track()
++            pa.prev_track()
++            # append
++            pa.curs_track_end()
++            pa.paste()
++
++            # append temp to temp result
++            pa.curs_track_end()
++            pa.sel_track_start_to_cursor()
++            pa.cut()
++            pa.toggle()
++            pa.prev_track()
++            pa.curs_track_end()
++            # paste temp at the end of temp_result
++            pa.paste()
++            pa.toggle()
+ 
+-            # Export the labeled clip
+-            export_path = os.path.join(export_directory, f"{label_name}.wav")
+-            pa.export(export_path)
+-            print(f"Exported clip to: {export_path}")
++        # join all the utterance_id labels into one clip
++        pa.sel_track_start_to_cursor()
++        pa.join()
++        pa.sel_track_start_to_end()
++        # cut temp result to klipboard
++        pa.cut()
++        pa.toggle()
++
++        wav_file_name = f"{script_id}_{first_name}_{last_name}"
++        export_clip_region_by_labels(export_directory, wav_file_name)
++        #end files names
++
++    print(f"Total labels created: {total_labels}")
++
++
++def export_clip_region_by_labels(export_dir, label):
++    # Export the labeled clip
++    export_path = os.path.join(export_dir, f"{label}.wav")
++    pa.export(export_path)
++    print(f"Exported clip to: {export_path}")
+ 
+-    # Final summary of counts
+-    print(f"Total labels created: {total_labels}")
++def select_tracks(first_track=0, track_count=0, low=None, high=None):
++    # type: (Optional[float], Optional[float]) -> str
++    """TODO
++
++    Audacity Documentation:
++        Nullifies existing selection when called without arguments
++        first_track = 0, data_track = 4
++        track_count must = 1 if the function is to select anything.
++
++        example usage for silence selection
++            select_tracks(first_track=0, track_count=1)
++
++        example usage for room_tone
++            select_tracks(first_track=1, track_count=1)
++
++    ."""
++
++    if not isinstance(first_track, (type(None), float, int)):
++        raise Exception('high argument must be float or int, not ' + str(type(high)))
++    if not isinstance(track_count, (type(None), float, int)):
++        raise Exception('low argument must be float or int, not ' + str(type(low)))
++
++    # Only include arguments if they are not None. (If they are none, then the selection is "unchanged" according to the documentation.)
++    macro_arguments = []
++    if first_track is not None:
++        macro_arguments.append('Track="{}"'.format(first_track))
++    if track_count is not None:
++        macro_arguments.append('TrackCount="{}"'.format(track_count))
++
++    return pa.do('SelectTracks: ' + ' '.join(macro_arguments))
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+ 
+ 
+ if __name__ == "__main__":
